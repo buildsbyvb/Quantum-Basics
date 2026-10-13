@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Quantum Lab</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sora:wght@500;700;800&family=Manrope:wght@400;600&display=swap">
+<style>
+:root{--bg:#eef2f7;--card:#ffffff;--glass:rgba(255,255,255,.7);--ink:#0b1424;--mute:#52627a;--line:#d5deea;--a:#0e7490;--b:#6d28d9;--amber:#b45309;--win:#15803d;--lose:#b91c1c;--glow:rgba(14,116,144,.18);
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#070b14;--card:#0e1524;--glass:rgba(12,18,32,.7);--ink:#e8eefb;--mute:#8da0bf;--line:#1f2b44;--a:#22d3ee;--b:#a78bfa;--amber:#fbbf24;--win:#4ade80;--lose:#f87171;--glow:rgba(34,211,238,.22)}}
+:root[data-theme="dark"]{--bg:#070b14;--card:#0e1524;--glass:rgba(12,18,32,.7);--ink:#e8eefb;--mute:#8da0bf;--line:#1f2b44;--a:#22d3ee;--b:#a78bfa;--amber:#fbbf24;--win:#4ade80;--lose:#f87171;--glow:rgba(34,211,238,.22)}
+*{box-sizing:border-box}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:Manrope,"Segoe UI",system-ui,sans-serif;line-height:1.6}
+h1,h2,h3,.brand,.big{font-family:Sora,"Trebuchet MS",system-ui,sans-serif}
+nav{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;backdrop-filter:blur(14px);background:var(--glass);border-bottom:1px solid var(--line)}
+nav div.in{display:flex;justify-content:flex-start;align-items:center;max-width:860px;margin:0 auto;padding:12px 18px}
+nav a{color:var(--mute);text-decoration:none;margin-left:6px;font-size:.92rem;padding:6px 12px;border-radius:99px}
+nav a:hover,nav a.cur{color:var(--ink);background:var(--line)}
+nav a.brand{font-weight:800;color:var(--ink);margin:0;font-size:1.05rem;padding:0}
+main{max-width:560px;margin:0 auto;padding:22px 16px 56px}
+main.wide{max-width:860px}
+h1{font-size:1.7rem;line-height:1.15;margin:0 0 8px;letter-spacing:-.02em}
+p{margin:0 0 12px;color:var(--mute)}
+.card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:18px;margin-bottom:16px}
+h2{font-size:1rem;margin:0 0 10px}
+.chips{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.chip{border:1px solid var(--line);background:transparent;color:var(--ink);border-radius:16px;padding:16px 4px;font:inherit;cursor:pointer;text-align:center;transition:.2s}
+.chip span{display:block;font-size:2rem}
+.chip:hover{border-color:var(--a)}
+.chip.on{border-color:var(--a);background:var(--glow);box-shadow:0 0 22px var(--glow)}
+.chip:focus-visible,button:focus-visible,a:focus-visible{outline:3px solid var(--b);outline-offset:2px}
+.bar{display:flex;align-items:center;gap:8px;margin:7px 0;font-size:.9rem}
+.bar b{width:96px;font-weight:600}
+.track{flex:1;height:10px;background:var(--line);border-radius:7px;overflow:hidden}
+.fill{height:100%;background:linear-gradient(90deg,var(--a),var(--b));width:0;transition:width .35s}
+.go{width:100%;border:0;border-radius:14px;background:linear-gradient(90deg,var(--a),var(--b));color:#fff;font:inherit;font-weight:700;font-size:1.02rem;padding:15px;cursor:pointer;box-shadow:0 8px 28px var(--glow)}
+:root:not([data-theme="light"]) .go{color:#06121f}
+.go:disabled{opacity:.4;cursor:not-allowed;box-shadow:none}
+.res{text-align:center;min-height:130px}
+.vs{display:flex;justify-content:space-around;font-size:2.8rem;margin:6px 0}
+.vs small{display:block;font-size:.8rem;color:var(--mute)}
+.out{font-weight:800;font-size:1.3rem;font-family:Sora,sans-serif}
+.out.w{color:var(--win)}.out.l{color:var(--lose)}
+.shake{animation:sh .45s}
+@keyframes sh{0%{box-shadow:0 0 0 0 var(--amber)}30%{box-shadow:0 0 34px 2px var(--amber)}100%{box-shadow:0 0 0 0 transparent}}
+@media(prefers-reduced-motion:reduce){.shake{animation:none}.fill,.chip{transition:none}}
+.score{display:flex;justify-content:space-around;text-align:center;color:var(--mute);font-size:.85rem}
+.score b{display:block;font-size:1.7rem;color:var(--ink);font-family:Sora,sans-serif}
+.hero{position:relative;overflow:hidden;border-bottom:1px solid var(--line)}
+.hero canvas{position:absolute;inset:0;width:100%;height:100%;}
+.hero .txt{position:relative;max-width:860px;margin:0 auto;padding:64px 18px 56px}
+.hero h1{font-size:clamp(2.1rem,7vw,3.6rem);font-weight:800;max-width:14ch}
+.hero p{font-size:1.05rem;max-width:44ch}
+.pick{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:16px;margin-top:28px}
+@media(max-width:620px){.pick{grid-template-columns:1fr}}
+.opt{position:relative;display:block;text-decoration:none;color:var(--ink);background:var(--card);border:1px solid var(--line);border-radius:22px;padding:24px;overflow:hidden;transition:.25s}
+.opt:hover{border-color:var(--a);box-shadow:0 14px 44px var(--glow);transform:translateY(-3px)}
+.opt::after{content:"";position:absolute;right:-40px;top:-40px;width:140px;height:140px;border-radius:50%;background:radial-gradient(var(--glow),transparent 70%)}
+.opt .ic{font-size:2.6rem}
+.opt h3{margin:12px 0 6px;font-size:1.2rem}
+.opt p{margin:0}
+.tag{display:inline-block;margin-top:14px;font-size:.8rem;color:var(--a);border:1px solid var(--a);border-radius:99px;padding:2px 10px}
+.back{display:inline-block;margin-bottom:14px;color:var(--a);text-decoration:none;font-size:.92rem}
+.btns{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:14px 0}
+.btns .go{font-size:.92rem;padding:12px;background:transparent;border:1px solid var(--line);color:var(--ink);box-shadow:none}
+:root:not([data-theme="light"]) .btns .go{color:var(--ink)}
+.btns .go.active{border-color:var(--a);background:var(--glow)}
+.rd{stroke:var(--line)}
+.map{background:radial-gradient(ellipse at center,var(--glow),transparent 70%)}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;text-align:center;color:var(--mute);font-size:.8rem}
+.stats b{display:block;font-size:1.5rem;color:var(--ink);font-family:Sora,sans-serif}
+.cmp{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;text-align:center}
+.cmp div{border:1px solid var(--line);border-radius:14px;padding:12px;color:var(--mute);font-size:.82rem}
+.cmp b{display:block;font-size:1.7rem;color:var(--ink);font-family:Sora,sans-serif}
+.cmp .win b{color:var(--win)}
+.meter{display:flex;align-items:center;gap:10px;margin:8px 0;font-size:.88rem}
+.meter b{width:70px;font-weight:600}
+.meter .track{height:8px}
+.meter .fill{transition:width .5s}
+svg text{fill:var(--mute);font-size:13px;font-family:Manrope,sans-serif}
+svg .bus{filter:drop-shadow(0 0 6px var(--amber))}
+.in2{width:100%;padding:12px;border-radius:12px;border:1px solid var(--line);background:transparent;color:var(--ink);font:inherit;margin-bottom:10px}
+.code{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:.82rem;word-break:break-all;background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:10px;margin:6px 0 12px;color:var(--ink)}
+.lbl{font-size:.82rem;color:var(--mute)}
+.ok{color:var(--win);font-weight:700}
+.hero{display:flex;align-items:center;min-height:82vh}
+.hero .txt{padding:40px 18px}
+.go.cta{display:inline-block;width:auto;text-decoration:none;padding:15px 38px;border-radius:99px;margin-top:22px;text-align:center}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:16px 0}
+.tile{border-radius:18px;padding:18px;border:1px solid var(--line);background:var(--card)}
+.tile .ic{font-size:1.9rem}
+.tile h3{margin:6px 0;font-size:1.05rem}
+.tile p{margin:0}
+.tile.prob{border-color:var(--amber)}.tile.sol{border-color:var(--a)}
+.tabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}
+.tab{border:1px solid var(--line);background:transparent;color:var(--ink);border-radius:99px;padding:8px 14px;font:inherit;font-size:.88rem;cursor:pointer}
+.tab.on{background:var(--glow);border-color:var(--a)}
+.panel{display:flex;gap:16px;align-items:flex-start;min-height:100px;animation:pin .3s}
+@keyframes pin{from{opacity:0;transform:translateY(6px)}}
+.panel .big{font-size:2.6rem;line-height:1}
+.panel h3{margin:0 0 4px;font-size:1.05rem}
+.panel p{margin:0}
+.nextb{margin-top:12px;border:0;background:none;color:var(--a);font:inherit;font-weight:600;cursor:pointer;padding:0}
+.drow{display:grid;grid-template-columns:1.1fr 1fr;gap:14px;align-items:center;margin-bottom:14px}
+.drow .why{margin:0;font-size:.86rem;border-left:3px solid var(--a);padding-left:12px}
+.range{width:100%;accent-color:var(--a)}
+.fact{background:var(--glow);border-radius:12px;padding:10px 14px;font-size:.9rem;margin:12px 0 0;color:var(--ink)}
+.reveal{animation:pin .35s}
+@media(max-width:620px){.two{grid-template-columns:1fr}.drow{grid-template-columns:1fr;gap:4px}}
+@media(prefers-reduced-motion:reduce){.panel,.reveal{animation:none}}
+.hero::after{content:"";position:absolute;inset:0;background:radial-gradient(ellipse at center,var(--bg) 0%,transparent 55%);opacity:.85;pointer-events:none}
+.hero .txt{text-align:center;z-index:2}.hero h1{margin:0 auto;max-width:none}
+.btns .go.solid{background:linear-gradient(90deg,var(--a),var(--b));border:0;color:#fff;box-shadow:0 8px 28px var(--glow)}
+:root:not([data-theme="light"]) .btns .go.solid{color:#06121f}
+.note{font-size:.85rem}
+section{display:none}
+section.show{display:block}
+</style>
+</head>
+<body>
+<nav><div class="in">
+<div><a href="#home" data-n="home">Home</a><a href="#menu" data-n="menu">Projects</a></div>
+</div></nav>
+
+<section id="home" class="show">
+<div class="hero"><canvas id="wave" aria-hidden="true"></canvas>
+<div class="txt">
+<h1>Quantum Lab</h1>
+<a class="go cta" href="#menu">Get started</a>
+</div></div>
+</section>
+
+<section id="menu"><main class="wide">
+<h1>Choose a project</h1>
+<p>Each one has a short explanation and something you can try.</p>
+<div class="pick">
+<a class="opt" href="#vw"><div class="ic">🚌</div><h3>Volkswagen case study</h3><p>How nine buses in Lisbon were routed with a quantum annealer, rebuilt as a live simulation.</p><span class="tag">Real-world case</span></a>
+<a class="opt" href="#pq"><div class="ic">🔐</div><h3>Can quantum break encryption?</h3><p>Break a toy RSA key yourself, then see why post-quantum standards are being rolled out.</p><span class="tag">Security case</span></a>
+<a class="opt" href="#game"><div class="ic">✊</div><h3>Quantum Rock-Paper-Scissors</h3><p>Keep your move in superposition, then measure it and see which way it collapses.</p><span class="tag">Playable game</span></a>
+</div>
+</main></section>
+
+<section id="vw"><main class="wide">
+<a class="back" href="#menu">Back to projects</a>
+<h1>Volkswagen Quantum Shuttle</h1>
+<div class="two">
+<div class="tile prob"><div class="ic">🚦</div><h3>The problem</h3><p>At Lisbon's Web Summit in 2019, thousands of visitors crowded the roads, and buses could jam the very streets they were meant to help.</p></div>
+<div class="tile sol"><div class="ic">⚛️</div><h3>The solution</h3><p>Volkswagen used a D-Wave quantum annealer to plan a route for each of nine buses in near real time, so they spread out instead of piling onto one road.</p></div>
+</div>
+
+<div class="card">
+<h2>Try it yourself</h2>
+<div class="lbl">Number of buses: <b id="nbv">9</b></div>
+<input class="range" id="nb" type="range" min="3" max="9" value="9" aria-label="Number of buses">
+<div class="map"><svg id="map" viewBox="0 0 600 250" width="100%" role="img" aria-label="Buses driving along three routes">
+<path d="M50,125 L550,125" fill="none" stroke-width="20" stroke-linecap="round" class="rd"/><path d="M50,125 C200,30 400,30 550,125" fill="none" stroke-width="20" stroke-linecap="round" class="rd"/><path d="M50,125 C200,220 400,220 550,125" fill="none" stroke-width="20" stroke-linecap="round" class="rd"/><path id="r0" d="M50,125 L550,125" fill="none" stroke-width="4" stroke-linecap="round" stroke="#94a3b8"/><path id="r1" d="M50,125 C200,30 400,30 550,125" fill="none" stroke-width="4" stroke-linecap="round" stroke="#94a3b8"/><path id="r2" d="M50,125 C200,220 400,220 550,125" fill="none" stroke-width="4" stroke-linecap="round" stroke="#94a3b8"/><g id="dots"></g>
+<text x="50" y="108" text-anchor="middle" style="font-size:22px">🏢</text><text x="550" y="108" text-anchor="middle" style="font-size:22px">🏙️</text>
+<text x="50" y="152" text-anchor="middle">Conference</text><text x="550" y="152" text-anchor="middle">City centre</text>
+<text x="300" y="150" text-anchor="middle">Route A</text><text x="300" y="38" text-anchor="middle">Route B</text><text x="300" y="222" text-anchor="middle">Route C</text>
+</svg></div>
+<div class="btns">
+<button class="go active" id="naive">🚌 All buses take the fastest road</button>
+<button class="go" id="opt">⚛️ Optimized routing</button>
+<button type="button" class="go" id="vwhow" aria-expanded="false">💡 How it works</button>
+</div>
+<div id="vwwrap" class="tile" style="margin-top:6px" hidden><div id="vwwk"></div><p class="note" style="margin:8px 0 0">This page is a classical simulation, not a quantum computer, and the numbers are illustrative rather than Volkswagen's data.</p></div>
+<div class="stats">
+<div><b id="s1">–</b>Avg trip (min)</div><div><b id="s2">–</b>Buses A / B / C</div><div><b id="s3">–</b>Plans checked</div>
+</div>
+<div style="margin-top:14px">
+<div class="meter"><b>Route A</b><div class="track"><div class="fill" id="m0"></div></div><span id="n0">0</span></div>
+<div class="meter"><b>Route B</b><div class="track"><div class="fill" id="m1"></div></div><span id="n1">0</span></div>
+<div class="meter"><b>Route C</b><div class="track"><div class="fill" id="m2"></div></div><span id="n2">0</span></div>
+</div>
+<p class="fact" id="fact"></p>
+</div>
+
+<div class="card">
+<h2>Result of the simulation</h2>
+<div class="cmp">
+<div>Fastest road for all<b id="cn">–</b>minutes</div>
+<div class="win">Optimized<b id="co">–</b>minutes</div>
+<div class="win">Time saved<b id="cd">–</b>per trip</div>
+</div>
+</div>
+
+</main></section>
+
+<section id="pq"><main class="wide">
+<a class="back" href="#menu">Back to projects</a>
+<h1>Can quantum computers break encryption?</h1>
+<div class="two">
+<div class="tile prob"><div class="ic">🔓</div><h3>The problem</h3><p>RSA protects much of today's online banking and messaging, and it is safe only because factoring a huge number is extremely slow for ordinary computers.</p></div>
+<div class="tile sol"><div class="ic">⚛️</div><h3>The solution</h3><p>Quantum technology changes the game on both sides: Shor's algorithm lets a large quantum computer factor huge numbers quickly, and quantum security tools like quantum key distribution build locks protected by physics.</p></div>
+</div>
+
+<div class="card">
+<h2>Try it yourself</h2>
+<div class="drow"><div><div class="lbl">1 · Key size (toy sizes only)</div><div class="btns" style="grid-template-columns:repeat(4,1fr);margin:6px 0 0" id="bsel"></div></div>
+<p class="why">Bigger numbers take longer to factor. Real keys have 2048 bits, ours are small so you can break them.</p></div>
+<div class="drow"><div><div class="lbl">2 · Public key</div><div class="code" id="pk">–</div></div>
+<p class="why">n is the lock everyone can see. It is two secret prime numbers multiplied together.</p></div>
+<div class="drow"><div><div class="lbl">3 · Secret message (2 to 99999)</div><input class="in2" id="msg" type="number" min="2" max="99999" value="4242" inputmode="numeric" style="margin:6px 0 0"></div>
+<p class="why">This is the number we want to keep private. Change it and watch step 4 change.</p></div>
+<div class="drow"><div><div class="lbl">4 · Encrypted message</div><div class="code" id="ct">–</div></div>
+<p class="why">The message scrambled with the public key. Without the secret primes it looks random.</p></div>
+<div class="btns"><button type="button" class="go solid" id="hack">🔨 Attack: factor the key</button><button type="button" class="go" id="howbtn" aria-expanded="false">💡 How it works</button></div>
+<div id="pres"></div>
+<div id="pqwrap" class="tile" style="margin-top:6px" hidden><div id="atkwrap"></div></div>
+</div>
+
+<div class="two">
+<div class="tile prob"><div class="ic">🕵️</div><h3>Harvest now, decrypt later</h3><p>Attackers can record encrypted data today and unlock it years later, once a capable quantum computer exists.</p></div>
+<div class="tile sol"><div class="ic">🚀</div><h3>Why quantum matters</h3><p>Today's machines are still too small to break real keys, but quantum hardware improves every year. That is why industry and governments are investing in quantum technology and quantum-safe security now.</p></div>
+</div>
+</main></section>
+
+<section id="game"><main>
+<a class="back" href="#menu">Back to projects</a>
+<h1>Quantum Rock-Paper-Scissors</h1>
+<p>Pick one move, or several to keep your choice in superposition. Nothing is decided until you measure.</p>
+
+<div class="card">
+<h2>1. Prepare your state</h2>
+<div class="chips" id="chips"></div>
+<div id="pbars" style="margin-top:14px"></div>
+</div>
+
+<div class="card">
+<h2>2. Computer's state</h2>
+<p style="margin:0" id="cstate">Hidden until you measure. It also picks a random mix of moves.</p>
+</div>
+
+<button class="go" id="go" disabled>Measure and collapse</button>
+
+<div class="card res" id="res" style="margin-top:16px">
+<p style="margin:34px 0 0">Select at least one move, then measure.</p>
+</div>
+
+<div class="card">
+<div class="score">
+<div><b id="sw">0</b>Wins</div><div><b id="st">0</b>Ties</div><div><b id="sl">0</b>Losses</div>
+</div>
+</div>
+</main></section>
+
+<script>
+const $=id=>document.getElementById(id);
+/* ---------- routing ---------- */
+function route(){
+  const h=(location.hash||"#home").slice(1);
+  const cur=["menu","vw","pq","game"].includes(h)?h:"home";["home","menu","vw","pq","game"].forEach(s=>$(s).classList.toggle("show",s===cur));document.querySelectorAll("nav a[data-n]").forEach(a=>a.classList.toggle("cur",a.dataset.n===(cur==="home"?"home":"menu")));
+  window.scrollTo(0,0);dispatchEvent(new Event("resize"));
+}
+addEventListener("hashchange",route);route();
+
+/* ---------- steps helper ---------- */
+function steps(id,list){
+  const el=$(id);let i=0;
+  const draw=()=>{
+    el.innerHTML=`<div class="tabs">${list.map((x,k)=>`<button class="tab ${k===i?"on":""}" data-k="${k}">${x[0]} ${x[1]}</button>`).join("")}</div><div class="panel"><div class="big">${list[i][0]}</div><div><h3>${list[i][1]}</h3><p>${list[i][2]}</p></div></div><button class="nextb">${i<list.length-1?"Next step":"Start again"}</button>`;
+    el.querySelectorAll(".tab").forEach(b=>b.onclick=()=>{i=+b.dataset.k;draw()});
+    el.querySelector(".nextb").onclick=()=>{i=(i+1)%list.length;draw()};
+  };
+  draw();
+}
+
+/* ---------- Volkswagen simulation ---------- */
+const BASE=[10,12,14];
+const BUS='<rect x="-15" y="-7" width="30" height="14" rx="4" fill="var(--amber)"/><rect x="-11" y="-4" width="5" height="5" rx="1" fill="#0b1424" opacity=".7"/><rect x="-4" y="-4" width="5" height="5" rx="1" fill="#0b1424" opacity=".7"/><rect x="3" y="-4" width="5" height="5" rx="1" fill="#0b1424" opacity=".7"/><rect x="10" y="-5" width="3" height="8" rx="1" fill="#0b1424" opacity=".85"/><circle cx="-8" cy="7" r="2.6" fill="#0b1424"/><circle cx="8" cy="7" r="2.6" fill="#0b1424"/>';
+let N=9,mode="naive",buses=[],raf=null;
+const tripTime=(r,n)=>BASE[r]*(1+0.25*(n-1));
+const counts=a=>{const c=[0,0,0];a.forEach(r=>c[r]++);return c};
+const avg=a=>{const c=counts(a);return a.reduce((s,r)=>s+tripTime(r,c[r]),0)/a.length};
+let VW=null,vwtm=[];
+function lanes(c){return ["A","B","C"].map((n,r)=>'<div style="display:flex;gap:8px;align-items:center;margin:3px 0"><span style="min-width:62px">Route '+n+'</span><span>'+(c[r]?"🚌".repeat(c[r]):"–")+'</span><span style="opacity:.7;font-size:.85em">'+c[r]+' bus'+(c[r]===1?"":"es")+'</span></div>').join("")}
+function showVW(){
+  vwtm.forEach(clearTimeout);vwtm=[];
+  const v=VW,cn=counts(v.naive),cb=counts(v.best),jam=tripTime(0,v.N);
+  const rows=[
+    ["🏁 Every bus picks the fastest road",lanes(cn),"Alone, Route A is the quickest (10 min), so each bus chooses it without knowing what the others do."],
+    ["🚦 The fast road jams","10 × (1 + 0.25 × ("+v.N+" − 1)) = "+jam.toFixed(1)+" min","Each extra bus adds 25% to the trip time of everyone on that road."],
+    ["🎲 List every possible plan",v.tot.toLocaleString()+" plans (3 ^ "+v.N+")","Each bus can take 3 routes, so the number of plans multiplies with every bus added."],
+    ["⚛️ Score each plan","Best average trip: "+v.bv.toFixed(1)+" min","The optimizer looks for the plan with the lowest cost. A quantum annealer is built for this search; this page simply checks them all."],
+    ["🚌 Buses are spread out",lanes(cb),"No single road is overloaded, so every bus moves faster."],
+    ["✅ Result",v.nv.toFixed(1)+" → "+v.bv.toFixed(1)+" min (−"+Math.round((1-v.bv/v.nv)*100)+"%)","Same buses, same roads, a better plan."]
+  ];
+  $("vwwk").innerHTML='<h3 style="margin:6px 0 10px;font-size:1.02rem">Planning, step by step ('+v.N+' buses)</h3><div id="vwrows"></div>';
+  rows.forEach((x,i)=>vwtm.push(setTimeout(()=>{
+    const d=document.createElement("div");d.className="drow reveal";
+    d.innerHTML='<div><div class="lbl">'+(i+1)+' · '+x[0]+'</div><div class="code">'+x[1]+'</div></div><p class="why">'+x[2]+'</p>';
+    $("vwrows").appendChild(d);
+  },i*450)));
+}
+$("vwhow").onclick=()=>{
+  const w=$("vwwrap"),o=w.hidden;
+  w.hidden=!o;$("vwhow").textContent=o?"✖ Hide how it works":"💡 How it works";$("vwhow").setAttribute("aria-expanded",o);
+  if(o){showVW();w.scrollIntoView({behavior:"smooth",block:"nearest"})}else{vwtm.forEach(clearTimeout)}
+};
+function render(){
+  const naive=Array(N).fill(0),tot=Math.pow(3,N);
+  let best=null,bv=1e9;
+  for(let k=0;k<tot;k++){const a=[];let x=k;for(let i=0;i<N;i++){a.push(x%3);x=Math.floor(x/3)}const v=avg(a);if(v<bv){bv=v;best=a}}
+  const nv=avg(naive);
+  $("cn").textContent=nv.toFixed(1);$("co").textContent=bv.toFixed(1);$("cd").textContent="−"+Math.round((1-bv/nv)*100)+"%";
+  $("fact").innerHTML="🎲 "+N+" buses on 3 routes have <b>"+tot.toLocaleString()+"</b> possible plans. With 50 buses there would be about <b>7 × 10²³</b>.";
+  const a=mode==="naive"?naive:best,c=counts(a);
+  [0,1,2].forEach(r=>{
+    $("r"+r).setAttribute("stroke","hsl("+Math.max(0,120-c[r]*22)+" 70% 45%)");
+    $("m"+r).style.width=(c[r]/N*100)+"%";
+    $("n"+r).textContent=c[r]+(c[r]>=5?" 🔴":c[r]>=3?" 🟡":c[r]?" 🟢":"");
+  });
+  $("s1").textContent=avg(a).toFixed(1);$("s2").textContent=c.join(" / ");
+  $("s3").textContent=mode==="naive"?"1":tot.toLocaleString();
+  $("naive").classList.toggle("active",mode==="naive");$("opt").classList.toggle("active",mode!=="naive");
+  const g=$("dots");g.innerHTML="";
+  buses=a.map((r,i)=>{
+    const el=document.createElementNS("http://www.w3.org/2000/svg","g");
+    el.setAttribute("class","bus");el.innerHTML=BUS;g.appendChild(el);
+    return {el,path:$("r"+r),dur:tripTime(r,c[r])*220,off:i/N};
+  });
+  VW={N,tot,nv,bv,best,naive};if(!$("vwwrap").hidden)showVW();
+  cancelAnimationFrame(raf);
+  const reduce=matchMedia("(prefers-reduced-motion:reduce)").matches;
+  const tick=t=>{
+    buses.forEach(b=>{
+      const p=reduce?b.off:((t/b.dur)+b.off)%1,L=b.path.getTotalLength();
+      const p1=b.path.getPointAtLength(p*L),p2=b.path.getPointAtLength(Math.min(1,p+.01)*L);
+      const ang=Math.atan2(p2.y-p1.y,p2.x-p1.x)*180/Math.PI;
+      b.el.setAttribute("transform","translate("+p1.x+" "+p1.y+") rotate("+ang+")");
+    });
+    if(!reduce)raf=requestAnimationFrame(tick);
+  };
+  raf=requestAnimationFrame(tick);
+}
+$("naive").onclick=()=>{mode="naive";render()};
+$("opt").onclick=()=>{mode="opt";render()};
+$("nb").oninput=()=>{N=+$("nb").value;$("nbv").textContent=N;render()};
+render();
+
+/* ---------- Rock-Paper-Scissors (unchanged) ---------- */
+const M=[{n:"Rock",e:"✊"},{n:"Paper",e:"✋"},{n:"Scissors",e:"✌️"}];
+let sel=[false,false,false],score={w:0,t:0,l:0};
+const chips=$("chips");
+M.forEach((m,i)=>{
+  const b=document.createElement("button");
+  b.className="chip";b.setAttribute("aria-pressed","false");
+  b.innerHTML=`<span>${m.e}</span>${m.n}`;
+  b.onclick=()=>{sel[i]=!sel[i];b.classList.toggle("on",sel[i]);b.setAttribute("aria-pressed",sel[i]);draw();};
+  chips.appendChild(b);
+});
+function bars(el,s,cls){
+  const n=s.filter(Boolean).length;
+  el.innerHTML=M.map((m,i)=>{const p=s[i]?Math.round(100/n):0;
+    return `<div class="bar"><b>${m.e} ${m.n}</b><div class="track"><div class="fill ${cls}" style="width:${p}%"></div></div><span>${p}%</span></div>`}).join("");
+}
+function draw(){bars($("pbars"),sel,"");$("go").disabled=!sel.some(Boolean)}
+const pick=s=>{const o=s.map((v,i)=>v?i:-1).filter(i=>i>=0);return o[Math.floor(Math.random()*o.length)]};
+function label(s){const o=M.filter((m,i)=>s[i]);return o.length===1?o[0].n+" (certain)":o.map(m=>m.n).join(" + ")+" superposition"}
+$("go").onclick=()=>{
+  let cs=[false,false,false];
+  while(!cs.some(Boolean))cs=cs.map(()=>Math.random()<.5);
+  const a=pick(sel),b=pick(cs),d=(a-b+3)%3;
+  const k=d===0?"t":d===1?"w":"l";
+  score[k]++;
+  $("sw").textContent=score.w;$("st").textContent=score.t;$("sl").textContent=score.l;
+  $("cstate").textContent="Computer was in: "+label(cs);
+  const r=$("res");
+  r.innerHTML=`<div class="vs"><div>${M[a].e}<small>You collapsed to ${M[a].n}</small></div><div>${M[b].e}<small>Computer collapsed to ${M[b].n}</small></div></div><div class="out ${k==="w"?"w":k==="l"?"l":""}">${k==="w"?"You win":k==="l"?"You lose":"Tie"}</div>`;
+  r.classList.remove("shake");void r.offsetWidth;r.classList.add("shake");
+};
+draw();
+
+/* ---------- hero qubit simulation ---------- */
+(function(){
+  const cv=$("wave"),cx=cv.getContext("2d"),root=document.documentElement;
+  const reduce=matchMedia("(prefers-reduced-motion:reduce)").matches;
+  let W=0,H=0,last=0;
+  function size(){const d=devicePixelRatio||1;W=cv.clientWidth;H=cv.clientHeight;cv.width=W*d;cv.height=H*d;cx.setTransform(d,0,0,d,0,0)}
+  size();addEventListener("resize",size);
+  const R=Math.random,TAU=6.2832,ST=Math.sin(.35),CT=Math.cos(.35);
+  const Q=Array.from({length:22},(_,i)=>{const z=.55+R()*.45;return{x:R(),y:R(),vx:(R()-.5)*.00006*z,vy:(R()-.5)*.00006*z,z,r:(16+R()*22)*z,ph:R()*TAU,sp:.0006+R()*.0012,th:R()*3.14,tg:0,c:i%2,rot:R()*TAU,hold:0,pulse:0,next:3000+R()*9000}}).sort((a,b)=>a.z-b.z);
+  const D=Array.from({length:70},()=>({x:R(),y:R(),vx:(R()-.5)*.00002,vy:(R()-.5)*.00002,s:.6+R()*1.2}));
+  function sphere(q,col){
+    const px=q.x*W,py=q.y*H,r=q.r,a=q.z;
+    cx.strokeStyle=col;cx.fillStyle=col;
+    cx.globalAlpha=.07*a;cx.beginPath();cx.arc(px,py,r*2.1,0,TAU);cx.fill();
+    cx.globalAlpha=.1*a;cx.beginPath();cx.arc(px,py,r,0,TAU);cx.fill();
+    cx.globalAlpha=.22*a;cx.beginPath();cx.arc(px-r*.35,py-r*.4,r*.28,0,TAU);cx.fill();
+    cx.lineWidth=1.3;cx.globalAlpha=.7*a;cx.beginPath();cx.arc(px,py,r,0,TAU);cx.stroke();
+    cx.lineWidth=1;cx.globalAlpha=.4*a;cx.beginPath();cx.ellipse(px,py,r,r*ST,0,0,TAU);cx.stroke();
+    cx.globalAlpha=.28*a;cx.beginPath();cx.ellipse(px,py,Math.abs(Math.cos(q.rot))*r,r,0,0,TAU);cx.stroke();
+    cx.globalAlpha=.25*a;cx.beginPath();cx.moveTo(px,py-r*1.15);cx.lineTo(px,py+r*1.15);cx.stroke();
+    if(r>20){cx.globalAlpha=.65*a;cx.font="10px Manrope,sans-serif";cx.textAlign="center";cx.fillText("|0⟩",px,py-r*1.25);cx.fillText("|1⟩",px,py+r*1.25+9)}
+    const th=q.th+Math.sin(q.ph*.6)*(q.hold>0?.08:.55);
+    const vx=Math.sin(th)*Math.cos(q.ph),vy=Math.sin(th)*Math.sin(q.ph),vz=Math.cos(th);
+    const tx=px+vx*r,ty=py-(vz*CT+vy*ST)*r,ang=Math.atan2(ty-py,tx-px);
+    cx.globalAlpha=.95*a;cx.lineWidth=2;cx.beginPath();cx.moveTo(px,py);cx.lineTo(tx,ty);cx.stroke();
+    cx.beginPath();cx.moveTo(tx,ty);cx.lineTo(tx-6*Math.cos(ang-.45),ty-6*Math.sin(ang-.45));cx.lineTo(tx-6*Math.cos(ang+.45),ty-6*Math.sin(ang+.45));cx.closePath();cx.fill();
+    cx.shadowColor=col;cx.shadowBlur=12;cx.beginPath();cx.arc(tx,ty,2.6,0,TAU);cx.fill();cx.shadowBlur=0;
+    if(q.pulse>0){cx.globalAlpha=q.pulse*.6*a;cx.lineWidth=1.5;cx.beginPath();cx.arc(px,py,r*(1+(1-q.pulse)*1.4),0,TAU);cx.stroke()}
+  }
+  function frame(t){
+    const dt=Math.min(50,t-last);last=t;
+    if(W>0){
+      const cs=getComputedStyle(root),A=cs.getPropertyValue("--a").trim(),B=cs.getPropertyValue("--b").trim();
+      cx.clearRect(0,0,W,H);
+      cx.fillStyle=A;
+      D.forEach(d=>{d.x=(d.x+d.vx*dt+1)%1;d.y=(d.y+d.vy*dt+1)%1;cx.globalAlpha=.25;cx.beginPath();cx.arc(d.x*W,d.y*H,d.s,0,TAU);cx.fill()});
+      Q.forEach(q=>{
+        q.x+=q.vx*dt;q.y+=q.vy*dt;if(q.x<0||q.x>1)q.vx*=-1;if(q.y<0||q.y>1)q.vy*=-1;
+        q.ph+=q.sp*dt;q.rot+=q.sp*.4*dt;q.next-=dt;
+        if(q.next<=0){q.next=5000+R()*9000;q.hold=1400;q.pulse=1;q.tg=R()<.5?0:Math.PI}
+        if(q.hold>0){q.hold-=dt;q.th+=(q.tg-q.th)*Math.min(1,dt*.006)}
+        q.pulse=Math.max(0,q.pulse-dt/1100);
+      });
+      cx.strokeStyle=A;cx.fillStyle=A;cx.lineWidth=1;
+      for(let i=0;i<Q.length;i++)for(let j=i+1;j<Q.length;j++){
+        const ax=Q[i].x*W,ay=Q[i].y*H,bx=Q[j].x*W,by=Q[j].y*H,d=Math.hypot(ax-bx,ay-by);
+        if(d<190){
+          cx.globalAlpha=(1-d/190)*.4;cx.beginPath();cx.moveTo(ax,ay);cx.lineTo(bx,by);cx.stroke();
+          const f=((t*.0003)+((i*7+j*3)%10)/10)%1;
+          cx.globalAlpha=(1-d/190)*.9;cx.beginPath();cx.arc(ax+(bx-ax)*f,ay+(by-ay)*f,2,0,TAU);cx.fill();
+        }
+      }
+      Q.forEach(q=>sphere(q,q.c?B:A));
+      cx.globalAlpha=1;
+    }
+    if(!reduce)requestAnimationFrame(frame);
+  }
+  requestAnimationFrame(frame);
+})();
+
+/* ---------- RSA demo ---------- */
+(function(){
+  let bits=28,key=null,ct="0",tm=[],res=null;
+  const isP=n=>{if(n<2)return false;for(let i=2;i*i<=n;i++)if(n%i===0)return false;return true};
+  const rp=b=>{for(;;){let n=Math.floor(Math.random()*2**(b-1))+2**(b-1);n|=1;if(isP(n))return n}};
+  const mp=(b,e,m)=>{let r=1n;b%=m;while(e>0n){if(e&1n)r=r*b%m;b=b*b%m;e>>=1n}return r};
+  const inv=(a,m)=>{let o=a,r=m,s=1n,t=0n;while(r){const q=o/r;[o,r]=[r,o-q*r];[s,t]=[t,s-q*t]}return((s%m)+m)%m};
+  const msg=()=>BigInt(Math.max(2,Math.min(Math.floor(Number($("msg").value))||2,99999)));
+  const isOpen=()=>!$("pqwrap").hidden;
+  function attack(){
+    const n=Number(key.n);let st=0,f=0;const t0=performance.now();
+    for(let i=3;i*i<=n;i+=2){st++;if(n%i===0){f=i;break}}
+    const ms=(performance.now()-t0).toFixed(1);
+    const p=BigInt(f),q=key.n/p,phi=(p-1n)*(q-1n),d=inv(key.e,phi),m=mp(BigInt(ct),d,key.n);
+    return {st,ms,p,q,phi,d,m};
+  }
+  function showWork(){
+    tm.forEach(clearTimeout);tm=[];
+    const r=res||(res=attack());
+    const rows=[
+      ["🔍 Divide n by 3, 5, 7…",r.st.toLocaleString()+" tries in "+r.ms+" ms","Brute force: test odd numbers until one divides n exactly."],
+      ["🧩 Prime factors found",r.p+" × "+r.q,"These two primes were the secret hidden inside the lock."],
+      ["🧮 Work out φ = (p−1)(q−1)",r.phi.toString(),"Only someone who knows the primes can calculate this number."],
+      ["🗝️ Find the private key d",r.d.toString(),"d undoes the public key e, so the attacker now holds the secret key."],
+      ["✅ Decrypt: c^d mod n",r.m.toString()+" (matches your message)","The original message is back, so the lock is broken."]
+    ];
+    $("atkwrap").innerHTML=`<h3 style="margin:20px 0 10px;font-size:1.02rem">Attack, step by step (your key)</h3><div id="wk"></div><p class="note" style="margin:8px 0 0">Every extra 8 bits makes this naive attack about 16 times slower. Shor's algorithm on a large quantum computer would grow far more slowly.</p>`;
+    rows.forEach((x,i)=>tm.push(setTimeout(()=>{
+      const d=document.createElement("div");d.className="drow reveal";
+      d.innerHTML='<div><div class="lbl">'+(i+1)+' · '+x[0]+'</div><div class="code">'+x[1]+'</div></div><p class="why">'+x[2]+'</p>';
+      $("wk").appendChild(d);
+    },i*450)));
+  }
+  function reset(){tm.forEach(clearTimeout);tm=[];res=null;$("pres").innerHTML="";$("atkwrap").innerHTML="";if(isOpen())showWork()}
+  function enc(){ct=mp(msg(),key.e,key.n).toString();$("ct").textContent=ct;reset()}
+  function gen(){
+    const h=bits/2,e=65537n;let p,q,phi,d;
+    do{p=rp(h);do{q=rp(h)}while(q===p);phi=BigInt(p-1)*BigInt(q-1);d=inv(e,phi)}while((e*d)%phi!==1n);
+    key={n:BigInt(p)*BigInt(q),e,d};
+    $("pk").textContent="n = "+key.n+"  |  e = "+e;enc();
+  }
+  const bs=$("bsel");
+  [20,28,36,44].forEach(b=>{
+    const x=document.createElement("button");x.type="button";x.className="go"+(b===bits?" active":"");x.textContent=b+"-bit";
+    x.onclick=()=>{bits=b;[...bs.children].forEach(c=>c.classList.toggle("active",c===x));gen()};bs.appendChild(x);
+  });
+  $("msg").oninput=()=>enc();
+  $("hack").onclick=()=>{
+    res=attack();
+    $("pres").innerHTML=`<div class="tile" style="margin-top:6px"><b class="ok">🔓 Key broken.</b> Message recovered: <b>${res.m}</b> after ${res.st.toLocaleString()} tries (${res.ms} ms). Press <b>How it works</b> to see every step.</div>`;
+    if(isOpen())showWork();
+  };
+  $("howbtn").onclick=()=>{
+    const w=$("pqwrap"),o=w.hidden;
+    w.hidden=!o;$("howbtn").textContent=o?"✖ Hide how it works":"💡 How it works";$("howbtn").setAttribute("aria-expanded",o);
+    if(o){showWork();w.scrollIntoView({behavior:"smooth",block:"nearest"})}else{tm.forEach(clearTimeout)}
+  };
+  gen();
+})();
+</script>
+</body>
+</html>
